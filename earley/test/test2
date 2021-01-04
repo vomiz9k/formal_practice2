@@ -1,0 +1,8 @@
+Expr -> Expr + Slag
+Expr -> Expr - Slag
+Expr -> Slag
+Slag -> Slag * Mnozh
+Slag -> Slag / Mnozh
+Slag -> Mnozh
+Mnozh -> ( Expr )
+Mnozh -> x

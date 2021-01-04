@@ -46,7 +46,8 @@ void earley::scan(size_t index)
 
     for (auto &situation : situations[index - 1])
     {
-        if (!situation.completed() && situation.right_part[situation.dot] == characters[index - 1])
+        if (!situation.completed() && !G.is_terminal(situation.right_part[situation.dot]) 
+            && situation.right_part[situation.dot] == characters[index - 1])
         {
             add_situation(index, situation.with_incremented_dot());
         }
@@ -69,7 +70,8 @@ void earley::update_completed_situation(size_t index, situation &completed_situa
 {
     for (auto &curr_situation : situations[completed_situation.index])
     {
-        if (!curr_situation.completed() && curr_situation.right_part[curr_situation.dot] == completed_situation.left_part)
+        if (!curr_situation.completed() 
+            && curr_situation.right_part[curr_situation.dot] == completed_situation.left_part)
         {
             add_situation(index, curr_situation.with_incremented_dot());
         }
@@ -81,14 +83,15 @@ void earley::predict(size_t index)
     for (size_t i = 0; i < situations[index].size(); ++i)
     {
         situation curr_situation = situations[index][i];
-        if (!curr_situation.completed() && G.is_terminal(curr_situation.right_part[curr_situation.dot]))
+        if (!curr_situation.completed() 
+            && G.is_terminal(curr_situation.right_part[curr_situation.dot]))
         {
             get_situations_from_rules(index, curr_situation.right_part[curr_situation.dot]);
         }
     }
 }
 
-void earley::get_situations_from_rules(size_t index, std::string &character)
+void earley::get_situations_from_rules(size_t index, const std::string &character)
 {
     for (const grammar::rule &rule : G.rules)
     {
@@ -116,7 +119,7 @@ void earley::init_earley_data(const grammar &gram, const std::string &word)
     situations[0].push_back(init_first_situation());
 }
 
-bool earley::predict(const grammar &gram, const std::string &word)
+bool earley::check(const grammar &gram, const std::string &word)
 {
     init_earley_data(gram, word);
 
@@ -134,8 +137,11 @@ bool earley::predict(const grammar &gram, const std::string &word)
 
     for (auto &situation : situations[characters.size()])
     {
-        if (situation.left_part == S && situation.right_part[0] == G.rules[0].left_part && situation.dot == 1 && situation.index == 0)
+        if (situation.left_part == S && situation.right_part[0] == G.rules[0].left_part 
+            && situation.dot == 1 && situation.index == 0)
+        {
             return true;
+        }
     }
 
     return false;
@@ -143,7 +149,8 @@ bool earley::predict(const grammar &gram, const std::string &word)
 
 bool operator==(const earley::situation &first, const earley::situation &second)
 {
-    if (first.dot == second.dot && first.index == second.index && first.left_part == second.left_part && first.right_part.size() == second.right_part.size())
+    if (first.dot == second.dot && first.index == second.index 
+    && first.left_part == second.left_part && first.right_part.size() == second.right_part.size())
     {
         for (size_t i = 0; i < first.right_part.size(); ++i)
         {

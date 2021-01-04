@@ -25,4 +25,7 @@ class grammar
 public:
     grammar(const std::string &path_to_file);
     grammar() = default;
+#ifdef _TEST
+    static void test();
+#endif
 };

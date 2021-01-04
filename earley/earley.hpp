@@ -38,12 +38,29 @@ class earley
 
     void predict(size_t index);
 
-    void get_situations_from_rules(size_t index, std::string &character);
+    void get_situations_from_rules(size_t index, const std::string &character);
 
     void init_earley_data(const grammar &gram, const std::string &word);
 
 public:
-    bool predict(const grammar &gram, const std::string &word);
+    bool check(const grammar &gram, const std::string &word);
 
     earley() = default;
+#ifdef _TEST
+    static void test();
+    static void test_add_situation();
+    static void test_scan();
+
+    static void test_complete();
+    static void test_update_completed_situations();
+
+    static void test_predict();
+    static void test_get_situations_from_rules();
+
+    static void test_check();
+#endif
 };
+
+#ifdef _TEST
+#include "test.hpp"
+#endif
