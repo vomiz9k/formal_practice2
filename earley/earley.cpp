@@ -1,5 +1,5 @@
 #include "earley.hpp"
-
+#include <iostream>
 earley::situation earley::situation::with_incremented_dot()
 {
     situation result = *this;
@@ -7,29 +7,48 @@ earley::situation earley::situation::with_incremented_dot()
     return result;
 }
 
-earley::situation::situation(const grammar::rule &rule, size_t _dot, size_t _index) : dot(_dot), index(_index)
+earley::situation::situation(grammar::rule rule, size_t _dot, size_t _index) : dot(_dot), index(_index)
 {
     right_part = rule.right_part;
     left_part = rule.left_part;
 }
 
-bool earley::situation::completed()
+bool earley::situation::completed() const
 {
     return dot >= right_part.size();
 }
 
-earley::situation earley::init_first_situation()
+void earley::init_first_situation()
 {
     grammar::rule first_rule;
     first_rule.left_part = S;
     first_rule.right_part.push_back(G.rules[0].left_part);
-    G.rules.push_back(first_rule);
 
     situation first_situation(first_rule, 0, 0);
-    return first_situation;
+
+    G.rules.push_back(first_rule);
+    situations[0].push_back(first_situation);
 }
 
-void earley::add_situation(size_t index, situation new_situation)
+
+void earley::init_earley_data(const grammar &gram, const std::string &word)
+{
+    G = gram;
+
+    std::stringstream character_stream(word);
+    std::string character;
+
+    while (character_stream >> character)
+    {
+        characters.push_back(character);
+    }
+
+    situations.resize(characters.size() + 1);
+    init_first_situation();
+}
+
+
+void earley::add_situation(size_t index, const situation &new_situation)
 {
     for (auto &situation : situations[index])
     {
@@ -58,7 +77,7 @@ void earley::complete(size_t index)
 {
     for (size_t i = 0; i < situations[index].size(); ++i)
     {
-        situation curr_situation = situations[index][i];
+        const situation& curr_situation = situations[index][i];
         if (curr_situation.completed())
         {
             update_completed_situation(index, curr_situation);
@@ -66,7 +85,7 @@ void earley::complete(size_t index)
     }
 }
 
-void earley::update_completed_situation(size_t index, situation &completed_situation)
+void earley::update_completed_situation(size_t index, const situation &completed_situation)
 {
     for (auto &curr_situation : situations[completed_situation.index])
     {
@@ -101,22 +120,6 @@ void earley::get_situations_from_rules(size_t index, const std::string &characte
             add_situation(index, new_situation);
         }
     }
-}
-
-void earley::init_earley_data(const grammar &gram, const std::string &word)
-{
-    G = gram;
-
-    std::stringstream character_stream(word);
-    std::string character;
-
-    while (character_stream >> character)
-    {
-        characters.push_back(character);
-    }
-
-    situations.resize(characters.size() + 1);
-    situations[0].push_back(init_first_situation());
 }
 
 bool earley::check(const grammar &gram, const std::string &word)

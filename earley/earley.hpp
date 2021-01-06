@@ -13,9 +13,9 @@ class earley
 
         situation with_incremented_dot();
 
-        situation(const grammar::rule &rule, size_t _dot, size_t _index);
+        situation(grammar::rule rule, size_t _dot, size_t _index);
 
-        bool completed();
+        bool completed() const; 
 
         situation() = default;
     };
@@ -26,15 +26,15 @@ class earley
     std::vector<std::string> characters;
     grammar G;
 
-    situation init_first_situation();
+    void init_first_situation();
 
-    void add_situation(size_t index, situation new_situation);
+    void add_situation(size_t index, const situation& new_situation);
 
     void scan(size_t index);
 
     void complete(size_t index);
 
-    void update_completed_situation(size_t index, situation &completed_situation);
+    void update_completed_situation(size_t index, const situation &completed_situation);
 
     void predict(size_t index);
 
